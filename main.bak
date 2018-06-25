@@ -1,0 +1,49 @@
+#lang racket
+(define (count-items alist)
+  (cond ((null? alist) 0)
+        (#t (+ 1 (count-items (cdr alist))))))
+
+(define (nth-item n alist)
+  (cond ((> n (count-items alist)) (display "Not a valid test case"))
+        ((= n 1) (car alist))
+        (#t (nth-item (- n 1) (cdr alist)))))
+
+(define (exists a alist)
+  (cond ((null? alist) #f)
+        ((= (count-items alist) 1) (if (equal? a (car alist)) #t #f))
+        (#t (if (equal? a (car alist)) #t (exists a (cdr alist))))))
+
+(define (get-location location x y)
+  (nth-item (+ x (+ y 1)) (nth-item y location)))
+
+(define percept '((empty empty empty)
+(empty (vegetation 2 45) empty empty empty)
+((vegetation 3 150) empty empty empty empty empty barrier)
+(barrier empty empty empty empty empty empty barrier barrier)
+(barrier barrier empty (vegetation 4 200) empty empty empty (vegetation 1 125) barrier barrier barrier)))
+
+
+(define x '())
+(define (get-veg-x xlist i y)    ;i is iterator, must be 0
+  (cond ((null? xlist) (set! x (append x '())))
+        ((= (count-items xlist) 1) (if (list? (car xlist))
+                                       (if (equal? 'vegetation (car (car xlist)))
+                                           (set! x (append x (list (list i y (car (cdr (cdr (car xlist))))))))
+                                           (set! x (append x '())))
+                                       (set! x (append x '()))))
+        (#t (begin (if (list? (car xlist))
+                       (if (equal? 'vegetation (car (car xlist))) (set! x (append x (list (list i y (car (cdr (cdr (car xlist)))))))) (set! x (append x '())))
+                       (set! x (append x '())))
+                   (get-veg-x (cdr xlist) (+ i 1) y)))))
+                                   
+                                   
+(define (get-veg location i)     ;i is iterator, must be 1 for y axis
+  (cond ((null? location) #f)
+        ((= (count-items location) 1) (get-veg-x (car location) (- 0 i) i))
+        (#t (begin (get-veg-x (car location) (- 0 i) i) (get-veg (cdr location) (+ i 1))))))
+
+(define a-loc '(0 0))
+
+(define (initialize-agent)
+        "OK")
+
